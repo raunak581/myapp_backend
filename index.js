@@ -27,6 +27,7 @@ sequelize.sync({}).then(() => {
   console.log('Database & tables created!');
 });
 
+
 // Define Auth Routes
 app.use('/api/auth', authRoutes);
 

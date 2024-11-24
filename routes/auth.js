@@ -4,7 +4,10 @@ const jwt = require('jsonwebtoken');
 const User = require('../user');
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const { ClothingItem } = require("../database/login")
+const { ClothingItem, ClothingImage } = require("../database/login")
+
+ClothingItem.associate({ ClothingImage });
+ClothingImage.associate({ ClothingItem });
 
 // Register User
 const transporter = nodemailer.createTransport({
@@ -168,6 +171,25 @@ router.get('/clothing-item', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+router.get('/clothing-item/:id', async (req, res) => {
+  try {
+    const clothingItem = await ClothingItem.findByPk(req.params.id, {
+      include: [{ model: ClothingImage, as: 'images' }],
+    });
+
+    if (!clothingItem) {
+      return res.status(404).json({ error: 'Clothing item not found' });
+    }
+
+    return res.status(200).json(clothingItem);
+  } catch (error) {
+    console.error('Error fetching clothing item:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 
 module.exports = router;

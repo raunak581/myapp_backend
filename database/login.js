@@ -34,6 +34,51 @@ const ClothingItem = sequelize.define('ClothingItem', {
   timestamps: true, // Automatically adds `createdAt` and `updatedAt` fields
 });
 
+ClothingItem.associate = (models) => {
+  ClothingItem.hasMany(models.ClothingImage, {
+    foreignKey: 'clothingId',
+    as: 'images',
+  });
+};
+
+
+const ClothingImage = sequelize.define(
+  'ClothingImage',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    clothingId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'clothing_items', // Table name of ClothingItem
+        key: 'id', // Foreign key references `id` in ClothingItem
+      },
+      onDelete: 'CASCADE', // Deletes images if the associated ClothingItem is deleted
+    },
+    imageUrl: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    tableName: 'clothing_images', // Table name in the database
+    timestamps: true, // Adds `createdAt` and `updatedAt`
+  }
+);
+ClothingImage.associate = (models) => {
+  ClothingImage.belongsTo(models.ClothingItem, {
+    foreignKey: 'clothingId',
+    as: 'clothingItem',
+  });
+};
+
+
+
+
 const insertClothingItems = async () => {
   const clothingData = [
     {
@@ -119,9 +164,76 @@ const insertClothingItems = async () => {
 };
 
 
+const clothingimage = async () => {
+  const clothingImages = [
+    {
+      clothingId: 1,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LLC-GOLD114_2.jpg?v=1719483713",
+    },
+    {
+      clothingId: 1,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LLC-GOLD114_3.jpg?v=1719483713",
+    },
+    {
+      clothingId: 1,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LLC-GOLD114_4.jpg?v=1719483713",
+    },
+    {
+      clothingId: 1,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LLC-GOLD114_5.jpg?v=1719483713",
+    },
+    {
+      clothingId: 2,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_3.jpg?v=1718267181",
+    },
+    {
+      clothingId: 2,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_4.jpg?v=1718267181",
+    },
+    {
+      clothingId: 2,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_5.jpg?v=1718267181",
+    },
+    {
+      clothingId: 2,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_6.jpg?v=1718267181",
+    },
+    {
+      clothingId: 3,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_5.jpg?v=1718267181",
+    },
+    {
+      clothingId: 3,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_6.jpg?v=1718267181",
+    },
+    {
+      clothingId: 4,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_5.jpg?v=1718267181",
+    },
+    {
+      clothingId: 4,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_6.jpg?v=1718267181",
+    },
+    {
+      clothingId: 5,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_5.jpg?v=1718267181",
+    },
+    {
+      clothingId: 5,
+      imageUrl: "https://gocolors.com/cdn/shop/files/LC02-DYROSE126_6.jpg?v=1718267181",
+    },
+  ];
+
+  await ClothingImage.bulkCreate(clothingImages);
+
+}
+
+
+
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
+    // await sequelize.sync({ alter: true });
     console.log('MySQL connected');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
@@ -130,4 +242,5 @@ const connectDB = async () => {
 connectDB();
 
 
-module.exports = { sequelize, connectDB, insertClothingItems, ClothingItem };
+
+module.exports = { sequelize, connectDB, insertClothingItems, ClothingItem, ClothingImage };
