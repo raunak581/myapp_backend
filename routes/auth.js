@@ -1,11 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../user');
+
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const { ClothingItem, ClothingImage } = require("../database/login")
-
+const User = require('../user');
 ClothingItem.associate({ ClothingImage });
 ClothingImage.associate({ ClothingItem });
 
@@ -189,6 +189,100 @@ router.get('/clothing-item/:id', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+
+
+// Registration Endpoint
+router.post('/registeration', async (req, res) => {
+  const { firstName, lastName, mobileNo, email, password, dateOfBirth, gender } = req.body;
+  if (!firstName || !lastName || !mobileNo || !email || !password || !dateOfBirth || !gender) {
+    return res.status(400).json({
+      msg: 'All fields are required: firstName, lastName, mobileNo, email, password, dateOfBirth, gender',
+    });
+  }
+
+  try {
+    // Check if the user already exists (by email or mobile number)
+    let user = await User.findOne({ where: { email } });
+    if (user) {
+      return res.status(400).json({ msg: 'User with this email already exists' });
+    }
+
+    user = await User.findOne({ where: { mobileNo } });
+    if (user) {
+      return res.status(400).json({ msg: 'User with this mobile number already exists' });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create the user
+    user = await User.create({
+      firstName,
+      lastName,
+      mobileNo,
+      email,
+      password: hashedPassword,
+      dateOfBirth,
+      gender,
+    });
+
+    // Generate JWT token (optional, for immediate login or other purposes)
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      's3cr3tK3y@2024!jwt', // Replace with your JWT secret
+      { expiresIn: '1h' }
+    );
+
+    // Return success response
+    res.status(201).json({
+      msg: 'Registration successful!',
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mobileNo: user.mobileNo,
+        email: user.email,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender,
+      },
+      token, // Optional
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+
+
+// Adjust path based on your project structure
+
+// POST: Check if mobile number exists
+router.post('/check-mobile', async (req, res) => {
+  const { mobileNo } = req.body;
+
+  try {
+    // Check if the mobile number exists in the database
+    const user = await User.findOne({ where: { mobileNo } });
+
+    if (user) {
+      // Mobile number exists
+      return res.status(200).json({ exists: true, msg: 'Mobile number exists' });
+    } else {
+      // Mobile number does not exist
+      return res.status(200).json({ exists: false, msg: 'Mobile number does not exist' });
+    }
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ msg: 'Server error', error: error.message });
+  }
+});
+
+module.exports = router;
+
 
 
 
