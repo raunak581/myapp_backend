@@ -270,7 +270,7 @@ router.post('/check-mobile', async (req, res) => {
 
     if (user) {
       // Mobile number exists
-      return res.status(200).json({ exists: true, msg: 'Mobile number exists' });
+      return res.status(200).json({ exists: true, msg: 'Mobile number exists',mobileNo:mobileNo, });
     } else {
       // Mobile number does not exist
       return res.status(200).json({ exists: false, msg: 'Mobile number does not exist' });
