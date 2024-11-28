@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const { ClothingItem, ClothingImage } = require("../database/login")
+const { ClothingItem, ClothingImage,WishlistItem } = require("../database/login")
 const User = require('../user');
 ClothingItem.associate({ ClothingImage });
 ClothingImage.associate({ ClothingItem });
@@ -281,9 +281,90 @@ router.post('/check-mobile', async (req, res) => {
   }
 });
 
+
+router.post('/add', async (req, res) => {
+  try {
+    const { Id, itemId, name, price, imageUrl } = req.body;
+
+    // Check if the user exists; if not, create a new user (simplified for this example)
+    let user = await User.findByPk(Id);
+    if (!user) {
+      user = await User.create({ id: userId });
+    }
+
+    // Check if the item is already in the wishlist
+    const existingItem = await WishlistItem.findOne({
+      where: { userId: user.id, itemId },
+    });
+
+    if (existingItem) {
+      return res.status(400).json({ message: 'Item already in wishlist' });
+    }
+
+    // Add item to wishlist
+    const wishlistItem = await WishlistItem.create({
+      userId: user.id,
+      itemId,
+      name,
+      price,
+      imageUrl,
+    });
+
+    res.status(200).json({ message: 'Item added to wishlist', wishlistItem });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+// Remove item from wishlist
+router.delete('/remove', async (req, res) => {
+  try {
+    const { userId, itemId } = req.body;
+
+    const result = await WishlistItem.destroy({
+      where: { userId, itemId },
+    });
+
+    if (result === 0) {
+      return res.status(404).json({ message: 'Item not found in wishlist' });
+    }
+
+    res.status(200).json({ message: 'Item removed from wishlist' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find all wishlist items for the given userId
+    const wishlistItems = await WishlistItem.findAll({
+      where: { userId },
+      attributes: ['itemId', 'name', 'price', 'imageUrl'],
+    });
+
+    res.status(200).json({
+      success: true,
+      data: wishlistItems,
+    });
+  } catch (error) {
+    console.error('Error fetching wishlist items:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch wishlist items',
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
 
 
 
 
-module.exports = router;
+
+
+
