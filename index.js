@@ -6,7 +6,7 @@ const { DataTypes } = require('sequelize');
 
 const cors = require('cors'); // Import CORS
 
-const { connectDB, sequelize } = require('../backend/database/login');
+const { connectDB, sequelize } = require('./database/login');
 
 const authRoutes = require('./routes/auth'); // Import your auth routes
 
