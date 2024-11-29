@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const { ClothingItem, ClothingImage,WishlistItem } = require("../database/login")
+const { ClothingItem, ClothingImage, WishlistItem, Cartitem } = require("../database/login")
 const User = require('../user');
 ClothingItem.associate({ ClothingImage });
 ClothingImage.associate({ ClothingItem });
@@ -270,7 +270,7 @@ router.post('/check-mobile', async (req, res) => {
 
     if (user) {
       // Mobile number exists
-      return res.status(200).json({ exists: true, msg: 'Mobile number exists',mobileNo:mobileNo, });
+      return res.status(200).json({ exists: true, msg: 'Mobile number exists', mobileNo: mobileNo, });
     } else {
       // Mobile number does not exist
       return res.status(200).json({ exists: false, msg: 'Mobile number does not exist' });
@@ -352,6 +352,102 @@ router.get('/user/:userId', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching wishlist items:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch wishlist items',
+      error: error.message,
+    });
+  }
+});
+
+
+
+//cart items add
+
+router.post('/addcart', async (req, res) => {
+  try {
+    const { Id, itemId, name, price, imageUrl } = req.body;
+
+    // Check if the user exists; if not, create a new user (simplified for this example)
+    let user = await User.findByPk(Id);
+    if (!user) {
+      user = await User.create({ id: userId });
+    }
+
+    // Check if the item is already in the wishlist
+    const existingItem = await Cartitem.findOne({
+      where: { userId: user.id, itemId },
+    });
+
+    if (existingItem) {
+      return res.status(400).json({ message: 'Item already in wishlist' });
+    }
+
+    // Add item to wishlist
+    const Cartitems = await Cartitem.create({
+      userId: user.id,
+      itemId,
+      name,
+      price,
+      imageUrl,
+    });
+
+    res.status(200).json({ message: 'Item added to wishlist', Cartitems });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+//delete
+
+
+router.delete('/removecart', async (req, res) => {
+  try {
+    const { userId, itemId } = req.body;
+
+    const result = await Cartitem.destroy({
+      where: { userId, itemId },
+    });
+
+    if (result === 0) {
+      return res.status(404).json({ message: 'Item not found in cart' });
+    }
+
+    res.status(200).json({ message: 'Item removed from cart' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+router.get('/cartuser/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find all wishlist items for the given userId
+    const Cartitems = await Cartitem.findAll({
+      where: { userId },
+      attributes: ['itemId', 'name', 'price', 'imageUrl'],
+    });
+
+    if (Cartitems.length == 0) {
+      res.status(201).json({
+        success: true,
+        data: "no items in your cart",
+      });
+
+
+    }
+    else {
+
+      res.status(200).json({
+        success: true,
+        data: Cartitems,
+      });
+    }
+  } catch (error) {
+    // console.error('Error fetching wishlist items:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch wishlist items',

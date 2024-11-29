@@ -1,10 +1,22 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
 // Initialize Sequelize (replace with your database configuration)
-const sequelize = new Sequelize('Gocolors', 'raunak', '123456', {
-  host: '127.0.0.1',
-  dialect: 'mysql', // Use your database dialect (mysql, postgres, sqlite, etc.)
-});
+const sequelize = new Sequelize(
+  {
+    username: "mgl",
+      password: "1FKsOyTn9gZdvh4G",
+      database: "chatapp",
+      host: "31.220.96.248",
+      port: 3306,
+      dialect: "mysql",
+      "pool": {
+       "max": 40,
+       "min": 0,
+       "acquire": 60000,
+       "idle": 10000
+     }
+    }
+  );
 
 // Define the ClothingItem model
 const ClothingItem = sequelize.define('ClothingItem', {
@@ -141,6 +153,49 @@ ClothingImage.associate = (models) => {
     as: 'clothingItem',
   });
 };
+
+
+const WishlistItem = sequelize.define('WishlistItem', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  itemId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  name: DataTypes.STRING,
+  price: DataTypes.FLOAT,
+  imageUrl: DataTypes.STRING,
+  // Additional fields as needed
+});
+
+// Associations
+WishlistItem.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(WishlistItem, { foreignKey: 'userId' });
+
+
+
+const Cartitem = sequelize.define('Cartitem', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  itemId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  name: DataTypes.STRING,
+  price: DataTypes.FLOAT,
+  imageUrl: DataTypes.STRING,
+  // Additional fields as needed
+});
+
+// Associations
+Cartitem.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Cartitem, { foreignKey: 'userId' });
 
 
 
@@ -309,4 +364,4 @@ connectDB();
 
 
 
-module.exports = { connectDB, insertClothingItems, ClothingItem, ClothingImage, sequelize, User };
+module.exports = { connectDB, insertClothingItems, ClothingItem, ClothingImage, sequelize, User,WishlistItem,Cartitem };
