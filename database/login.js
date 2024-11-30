@@ -190,6 +190,7 @@ const Cartitem = sequelize.define('Cartitem', {
   name: DataTypes.STRING,
   price: DataTypes.FLOAT,
   imageUrl: DataTypes.STRING,
+  quantity:DataTypes.INTEGER,
   // Additional fields as needed
 });
 

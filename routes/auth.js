@@ -366,7 +366,7 @@ router.get('/user/:userId', async (req, res) => {
 
 router.post('/addcart', async (req, res) => {
   try {
-    const { Id, itemId, name, price, imageUrl } = req.body;
+    const { Id, itemId, name, price, imageUrl,quantity } = req.body;
 
     // Check if the user exists; if not, create a new user (simplified for this example)
     let user = await User.findByPk(Id);
@@ -390,9 +390,10 @@ router.post('/addcart', async (req, res) => {
       name,
       price,
       imageUrl,
+      quantity
     });
 
-    res.status(200).json({ message: 'Item added to wishlist', Cartitems });
+    res.status(200).json({ message: 'Item added to cart', Cartitems });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -428,7 +429,7 @@ router.get('/cartuser/:userId', async (req, res) => {
     // Find all wishlist items for the given userId
     const Cartitems = await Cartitem.findAll({
       where: { userId },
-      attributes: ['itemId', 'name', 'price', 'imageUrl'],
+      attributes: ['itemId', 'name', 'price', 'imageUrl','quantity'],
     });
 
     if (Cartitems.length == 0) {

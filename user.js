@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../backend/database/login'); // Ensure this path is correct
+const { sequelize } = require('./database/login'); // Ensure this path is correct
 
 const User = sequelize.define('User', {
   firstName: {
