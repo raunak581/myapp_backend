@@ -266,11 +266,27 @@ router.post('/check-mobile', async (req, res) => {
 
   try {
     // Check if the mobile number exists in the database
-    const user = await User.findOne({ where: { mobileNo } });
+    const user = await User.findOne({
+      where: { mobileNo },
+      attributes: [
+        'id',
+        'firstName',
+        'lastName',
+        'mobileNo',
+        'email',
+        'password',
+        'dateOfBirth',
+        'gender'
+      ]
+    });
 
     if (user) {
       // Mobile number exists
-      return res.status(200).json({ exists: true, msg: 'Mobile number exists', mobileNo: mobileNo, });
+      return res.status(200).json({
+        exists: true,
+        msg: 'Mobile number exists',
+        user: user // Send all user details
+      });
     } else {
       // Mobile number does not exist
       return res.status(200).json({ exists: false, msg: 'Mobile number does not exist' });
@@ -280,6 +296,7 @@ router.post('/check-mobile', async (req, res) => {
     return res.status(500).json({ msg: 'Server error', error: error.message });
   }
 });
+
 
 
 router.post('/add', async (req, res) => {
@@ -366,7 +383,7 @@ router.get('/user/:userId', async (req, res) => {
 
 router.post('/addcart', async (req, res) => {
   try {
-    const { Id, itemId, name, price, imageUrl,quantity } = req.body;
+    const { Id, itemId, name, price, imageUrl, quantity } = req.body;
 
     // Check if the user exists; if not, create a new user (simplified for this example)
     let user = await User.findByPk(Id);
@@ -429,7 +446,7 @@ router.get('/cartuser/:userId', async (req, res) => {
     // Find all wishlist items for the given userId
     const Cartitems = await Cartitem.findAll({
       where: { userId },
-      attributes: ['itemId', 'name', 'price', 'imageUrl','quantity'],
+      attributes: ['itemId', 'name', 'price', 'imageUrl', 'quantity'],
     });
 
     if (Cartitems.length == 0) {
