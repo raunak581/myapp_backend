@@ -379,7 +379,7 @@ const connectDB = async () => {
   }
 };
 connectDB();
-
+insertClothingItems();
 
 
 module.exports = { connectDB, insertClothingItems, ClothingItem, ClothingImage, sequelize, User,WishlistItem,Cartitem };
