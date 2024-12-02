@@ -1,39 +1,39 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
 // Initialize Sequelize (replace with your database configuration)
-const sequelize = new Sequelize(
-  {
-    username: "root",
-    password: "dxqKqZIdmBKoUMpYfWsBIzMbYBYUHELI",
-    database: "railway",
-    host: "junction.proxy.rlwy.net",
-    port: 11850,
-    dialect: "mysql",
-    "pool": {
-      "max": 40,
-      "min": 0,
-      "acquire": 60000,
-      "idle": 10000
-    }
-  }
-);
-
 // const sequelize = new Sequelize(
 //   {
-//         username: "root",
-//           password: "cOzbhuWlGXCcHaiweUhMVyGcinrJSGCZ",
-//           database: "railway",
-//           host: "junction.proxy.rlwy.net",
-//           port: 41889,
-//           dialect: "mysql",
-//           "pool": {
-//            "max": 40,
-//            "min": 0,
-//            "acquire": 60000,
-//            "idle": 10000
-//          }
-//         }
-// )
+//     username: "root",
+//     password: "dxqKqZIdmBKoUMpYfWsBIzMbYBYUHELI",
+//     database: "railway",
+//     host: "junction.proxy.rlwy.net",
+//     port: 11850,
+//     dialect: "mysql",
+//     "pool": {
+//       "max": 40,
+//       "min": 0,
+//       "acquire": 60000,
+//       "idle": 10000
+//     }
+//   }
+// );
+
+const sequelize = new Sequelize(
+  {
+    username: "mgl",
+      password: "1FKsOyTn9gZdvh4G",
+      database: "chatapp",
+      host: "31.220.96.248",
+      port: 3306,
+      dialect: "mysql",
+      "pool": {
+       "max": 40,
+       "min": 0,
+       "acquire": 60000,
+       "idle": 10000
+     }
+    }
+  );
 
 // Define the ClothingItem model
 const ClothingItem = sequelize.define('ClothingItem', {

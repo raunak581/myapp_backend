@@ -8,6 +8,8 @@ const { ClothingItem, ClothingImage, WishlistItem, Cartitem } = require("../data
 const User = require('../user');
 ClothingItem.associate({ ClothingImage });
 ClothingImage.associate({ ClothingItem });
+const { Op } = require('sequelize');
+
 
 // Register User
 const transporter = nodemailer.createTransport({
@@ -473,6 +475,29 @@ router.get('/cartuser/:userId', async (req, res) => {
     });
   }
 });
+
+
+//for serach 
+
+router.get('/items', async (req, res) => {
+  const searchTerm = req.query.search || '';
+
+  try {
+      const items = await ClothingItem.findAll({
+          where: {
+              name: {
+                  [Op.like]: `%${searchTerm}%` // Match items containing the search term
+              }
+          }
+      });
+
+      res.json(items);
+  } catch (error) {
+      console.error('Error fetching items:', error);
+      res.status(500).send('Server error');
+  }
+});
+
 
 module.exports = router;
 
