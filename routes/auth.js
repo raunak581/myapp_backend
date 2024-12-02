@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const { ClothingItem, ClothingImage, WishlistItem, Cartitem } = require("../database/login")
+const { ClothingItem, ClothingImage, WishlistItem, Cartitem, sequelize } = require("../database/login")
 const User = require('../user');
 ClothingItem.associate({ ClothingImage });
 ClothingImage.associate({ ClothingItem });
@@ -483,20 +483,63 @@ router.get('/items', async (req, res) => {
   const searchTerm = req.query.search || '';
 
   try {
-      const items = await ClothingItem.findAll({
-          where: {
-              name: {
-                  [Op.like]: `%${searchTerm}%` // Match items containing the search term
-              }
-          }
-      });
+    const items = await ClothingItem.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${searchTerm}%` // Match items containing the search term
+        }
+      }
+    });
 
-      res.json(items);
+    res.json(items);
   } catch (error) {
-      console.error('Error fetching items:', error);
-      res.status(500).send('Server error');
+    console.error('Error fetching items:', error);
+    res.status(500).send('Server error');
   }
 });
+
+
+//no of items in cart and wishlist
+
+router.get('/counts/:userId', async (req, res) => {
+  const { userId } = req.params; // Extract userId from route parameters
+
+  try {
+    // Corrected SQL query
+    const results = await sequelize.query(`
+      SELECT 
+        (SELECT COUNT(*) FROM cartitems WHERE userId = :userId) AS cartitems_count,
+        (SELECT COUNT(*) FROM wishlistitems WHERE userId = :userId) AS wishlist_count
+    `, {
+      type: sequelize.QueryTypes.SELECT,
+      replacements: { userId }, // Use replacements for parameterized query
+    });
+
+    // Log the results for debugging
+    console.log('Query Results:', results);
+
+    // Ensure results exist
+    if (results.length > 0) {
+      res.status(200).json({
+        success: true,
+        data: results[0], // Results in the format { cartitems_count: X, wishlist_count: Y }
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'No data found for the given userId.',
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching row counts:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch row counts.',
+      error: error.message,
+    });
+  }
+});
+
 
 
 module.exports = router;
