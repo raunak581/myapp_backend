@@ -329,7 +329,11 @@ router.post('/add', async (req, res) => {
       imageUrl,
     });
 
-    res.status(200).json({ message: 'Item added to wishlist', wishlistItem });
+    const wishlistCount = await WishlistItem.count({
+      where: { userId: user.id },
+    });
+
+    res.status(200).json({ message: 'Item added to wishlist', wishlist_count: wishlistCount,wishlistItem:wishlistItem });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -411,8 +415,11 @@ router.post('/addcart', async (req, res) => {
       imageUrl,
       quantity
     });
+    const cartCount = await Cartitem.count({
+      where: { userId: user.id },
+    });
 
-    res.status(200).json({ message: 'Item added to cart', Cartitems });
+    res.status(200).json({ message: 'Item added to cart', cartCount,Cartitems });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
