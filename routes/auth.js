@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const { ClothingItem, ClothingImage, WishlistItem, Cartitem, sequelize } = require("../database/login")
+const { ClothingItem, ClothingImage, WishlistItem, Cartitem, sequelize, Address } = require("../database/login")
 const User = require('../user');
 ClothingItem.associate({ ClothingImage });
 ClothingImage.associate({ ClothingItem });
@@ -333,7 +333,7 @@ router.post('/add', async (req, res) => {
       where: { userId: user.id },
     });
 
-    res.status(200).json({ message: 'Item added to wishlist', wishlist_count: wishlistCount,wishlistItem:wishlistItem });
+    res.status(200).json({ message: 'Item added to wishlist', wishlist_count: wishlistCount, wishlistItem: wishlistItem });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -419,7 +419,7 @@ router.post('/addcart', async (req, res) => {
       where: { userId: user.id },
     });
 
-    res.status(200).json({ message: 'Item added to cart', cartCount,Cartitems });
+    res.status(200).json({ message: 'Item added to cart', cartCount, Cartitems });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -546,6 +546,38 @@ router.get('/counts/:userId', async (req, res) => {
     });
   }
 });
+
+
+
+router.post('/saveaddress', async (req, res) => {
+  try {
+    const { userId, address, country, state, city, postalCode, mobileNumber } = req.body;
+
+    // Check if the user exists
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Save the address
+    const newAddress = await Address.create({
+      userId,
+      address,
+      country,
+      state,
+      city,
+      postalCode,
+      mobileNumber,
+    });
+
+    res.status(200).json({ message: 'Address saved successfully', address: newAddress });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+module.exports = router;
+
 
 
 

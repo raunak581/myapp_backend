@@ -18,39 +18,39 @@ const { Sequelize, DataTypes } = require('sequelize');
 //   }
 // );
 
-const sequelize = new Sequelize(
-  {
-    username: "mgl",
-      password: "1FKsOyTn9gZdvh4G",
-      database: "chatapp",
-      host: "31.220.96.248",
-      port: 3306,
-      dialect: "mysql",
-      "pool": {
-       "max": 40,
-       "min": 0,
-       "acquire": 60000,
-       "idle": 10000
-     }
-    }
-  );
-
 // const sequelize = new Sequelize(
 //   {
-//     username: "raunak",
-//     password: "123456",
-//     database: "gocolors",
-//     host: "127.0.0.1",
-//     port: 3306,
-//     dialect: "mysql",
-//     "pool": {
-//       "max": 40,
-//       "min": 0,
-//       "acquire": 60000,
-//       "idle": 10000
+//     username: "mgl",
+//       password: "1FKsOyTn9gZdvh4G",
+//       database: "chatapp",
+//       host: "31.220.96.248",
+//       port: 3306,
+//       dialect: "mysql",
+//       "pool": {
+//        "max": 40,
+//        "min": 0,
+//        "acquire": 60000,
+//        "idle": 10000
+//      }
 //     }
-//   }
-// );
+//   );
+
+const sequelize = new Sequelize(
+  {
+    username: "raunak",
+    password: "123456",
+    database: "gocolors",
+    host: "127.0.0.1",
+    port: 3306,
+    dialect: "mysql",
+    "pool": {
+      "max": 40,
+      "min": 0,
+      "acquire": 60000,
+      "idle": 10000
+    }
+  }
+);
 
 // Define the ClothingItem model
 const ClothingItem = sequelize.define('ClothingItem', {
@@ -234,6 +234,47 @@ User.hasMany(Cartitem, { foreignKey: 'userId' });
 
 
 
+const Address = sequelize.define('Address', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+
+  country: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  state: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  city: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  postalCode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  mobileNumber: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+});
+
+// Associations
+Address.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+User.hasMany(Address, { foreignKey: 'userId' });
+
+
+
+
+
 
 const insertClothingItems = async () => {
   const clothingData = [
@@ -400,4 +441,4 @@ const connectDB = async () => {
 connectDB();
 
 
-module.exports = { connectDB, insertClothingItems, ClothingItem, ClothingImage, sequelize, User, WishlistItem, Cartitem };
+module.exports = { connectDB, insertClothingItems, ClothingItem, ClothingImage, sequelize, User, WishlistItem, Cartitem, Address };
