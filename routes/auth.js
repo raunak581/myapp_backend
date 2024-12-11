@@ -576,12 +576,63 @@ router.post('/saveaddress', async (req, res) => {
   }
 });
 
+router.get('/getaddresses/:userId', async (req, res) => {
+  // const { userId } = req.body;
+  const { userId } = req.params;
+
+  try {
+    // const { userId } = req.body;
+
+    // Check if the user exists
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Fetch all addresses for the user
+    const addresses = await Address.findAll({
+      where: { userId },
+    });
+
+    if (addresses.length === 0) {
+      return res.status(404).json({ message: 'No addresses found for this user' });
+    }
+
+    res.status(200).json({ addresses });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+router.delete('/deleteaddress/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // Address ID from request params
+
+    // Find the address by ID
+    const address = await Address.findByPk(id);
+
+    if (!address) {
+      return res.status(404).json({ message: 'Address not found' });
+    }
+
+    // Delete the address
+    await address.destroy();
+
+    res.status(200).json({ message: 'Address deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to delete the address' });
+  }
+});
+
+
 module.exports = router;
 
 
 
 
-module.exports = router;
+
 
 
 
